@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .controllers import course_controller
+from .routers import course
 
 app = FastAPI(root_path="/api/v1")
 app.add_middleware(
@@ -10,4 +10,4 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"]
 )
-app.include_router(course_controller.router)
+app.include_router(course.router)
