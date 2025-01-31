@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import course_controller
+from .controllers import course_controller
 
 app = FastAPI(root_path="/api/v1")
 app.add_middleware(

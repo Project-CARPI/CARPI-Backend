@@ -2,8 +2,12 @@ from enum import Enum
 
 from fastapi import APIRouter
 from sqlalchemy.sql import text
+from sqlmodel import select
 
-from .dependencies import SessionDep
+from ..db_models.course import Course
+from ..db_models.course_attribute import Course_Attribute
+from ..db_models.course_seats import Course_Seats
+from ..dependencies import SessionDep
 
 
 class CourseFilter(str, Enum):
@@ -146,14 +150,13 @@ def search_course(
 
 @router.get("/filter/values/{filter}")
 def get_filter_values(session: SessionDep, filter: CourseFilter) -> list[str]:
-    query = None
+    column = None
     if filter is CourseFilter.departments:
-        query = "SELECT DISTINCT dept FROM course"
+        column = Course.dept
     elif filter is CourseFilter.attributes:
-        query = "SELECT DISTINCT attr FROM course_attribute"
+        column = Course_Attribute.attr
     elif filter is CourseFilter.semesters:
-        query = "SELECT DISTINCT semester FROM course_seats"
+        column = Course_Seats.semester
     else:
         return None
-    results = session.exec(text(query)).all()
-    return [row[0] for row in results]
+    return session.exec(select(column).distinct()).all()

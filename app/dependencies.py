@@ -1,8 +1,8 @@
 from typing import Annotated, Generator
 
-from fastapi import Depends, Query
+from fastapi import Depends
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 
 
 class _Settings(BaseSettings):
@@ -19,8 +19,11 @@ _engine = create_engine(
     url = f"{_settings.db_dialect}+{_settings.db_api}" +
           f"://{_settings.db_username}:{_settings.db_password}" +
           f"@{_settings.db_hostname}/{_settings.db_schema}",
-    echo = False
+    # echo = True
 )
+
+# Creates tables in database based on SQLModel table models
+SQLModel.metadata.create_all(_engine)
 
 def get_settings() -> _Settings:
     return _settings
