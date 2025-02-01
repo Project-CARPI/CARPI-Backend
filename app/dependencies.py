@@ -23,7 +23,8 @@ _engine = create_engine(
 )
 
 # Creates tables in database based on SQLModel table models
-SQLModel.metadata.create_all(_engine)
+def create_schema_and_tables():
+    SQLModel.metadata.create_all(_engine)
 
 def get_settings() -> _Settings:
     return _settings
