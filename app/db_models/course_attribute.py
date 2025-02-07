@@ -9,8 +9,9 @@ _ATTR_ENUM = [
     "Writing Intensive",
     "HASS Inquiry",
     "Introductory Level Course",
-    "PDII Option for Engr Majors"
+    "PDII Option for Engr Majors",
 ]
+
 
 class Course_Attribute(SQLModel, table=True):
     dept: str = Field(primary_key=True, sa_type=VARCHAR(4))

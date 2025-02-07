@@ -1,11 +1,8 @@
 from sqlalchemy.dialects.mysql import ENUM, SMALLINT, TINYINT, VARCHAR
 from sqlmodel import Field, SQLModel
 
-_SEM_ENUM = [
-    "Fall",
-    "Spring",
-    "Summer"
-]
+_SEM_ENUM = ["Fall", "Spring", "Summer"]
+
 
 class Course_Seats(SQLModel, table=True):
     sem_year: int = Field(primary_key=True, sa_type=SMALLINT)

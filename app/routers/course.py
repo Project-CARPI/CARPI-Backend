@@ -15,9 +15,12 @@ class CourseFilter(str, Enum):
     attributes = "attributes"
     semesters = "semesters"
 
+
 router = APIRouter(prefix="/course")
 
-_SEARCH_COURSE_QUERY = text("""
+
+_SEARCH_COURSE_QUERY = text(
+    """
     SELECT
         course.dept AS dept,
         course.code_num AS code_num,
@@ -73,15 +76,17 @@ _SEARCH_COURSE_QUERY = text("""
         code_num ASC,
         dept ASC
     ;
-""")
+"""
+)
+
 
 @router.get("/search")
 def search_course(
-        session: SessionDep,
-        searchPrompt: str | None = None,
-        deptFilters: str | None = None,
-        attrFilters: str | None = None,
-        semFilters: str | None = None
+    session: SessionDep,
+    searchPrompt: str | None = None,
+    deptFilters: str | None = None,
+    attrFilters: str | None = None,
+    semFilters: str | None = None,
 ) -> list[dict[str, str | int | None]]:
     # FastAPI does not support list query parameters
     dept_filters = deptFilters.split(",") if deptFilters else None
@@ -100,13 +105,13 @@ def search_course(
     sem_filter_regex = ".*"
     if dept_filters and len(dept_filters) > 0:
         dept_filters.sort()
-        dept_filter_regex = '|'.join(dept_filters)
+        dept_filter_regex = "|".join(dept_filters)
     if attr_filters and len(attr_filters) > 0:
         attr_filters.sort()
-        attr_filter_regex = '.*'.join(attr_filters)
+        attr_filter_regex = ".*".join(attr_filters)
     if sem_filters and len(sem_filters) > 0:
         sem_filters.sort()
-        sem_filter_regex = '.*'.join(sem_filters)
+        sem_filter_regex = ".*".join(sem_filters)
     if searchPrompt and len(searchPrompt) > 0:
         reg_start_or_space = "(^|.* )"
         # Full code match
@@ -143,10 +148,11 @@ def search_course(
         "search_abbrev_regex": regex_abbrev,
         "dept_filter_regex": dept_filter_regex,
         "attr_filter_regex": attr_filter_regex,
-        "sem_filter_regex": sem_filter_regex
+        "sem_filter_regex": sem_filter_regex,
     }
     results = session.exec(_SEARCH_COURSE_QUERY, params=params).all()
     return [dict(row._mapping) for row in results]
+
 
 @router.get("/filter/values/{filter}")
 def get_filter_values(session: SessionDep, filter: CourseFilter) -> list[str]:
