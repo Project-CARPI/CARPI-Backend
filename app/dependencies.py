@@ -1,6 +1,7 @@
-from typing import Annotated, Generator
+from contextlib import asynccontextmanager
+from typing import Annotated, AsyncGenerator, Generator
 
-from fastapi import Depends
+from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlmodel import Session, SQLModel, create_engine
 
@@ -16,17 +17,23 @@ class _Settings(BaseSettings):
 
 
 _settings = _Settings()
-_engine = create_engine(
-    url=f"{_settings.db_dialect}+{_settings.db_api}"
-    + f"://{_settings.db_username}:{_settings.db_password}"
-    + f"@{_settings.db_hostname}/{_settings.db_schema}",
-    # echo=True,
-)
+_engine = None
 
 
-# Creates tables in database based on SQLModel table models
-def create_schema_and_tables():
+@asynccontextmanager
+async def init_db_engine(app: FastAPI) -> AsyncGenerator[None, None]:
+    global _engine
+    _engine = create_engine(
+        url=f"{_settings.db_dialect}+{_settings.db_api}"
+        + f"://{_settings.db_username}:{_settings.db_password}"
+        + f"@{_settings.db_hostname}/{_settings.db_schema}",
+        # echo=True,
+    )
+    # Creates tables in database based on SQLModel table models
     SQLModel.metadata.create_all(_engine)
+    yield
+    # Disposes database connection pool on app shutdown
+    _engine.dispose()
 
 
 def get_settings() -> _Settings:
