@@ -1,4 +1,4 @@
-from sqlalchemy.dialects.mysql import ENUM, VARCHAR, SMALLINT
+from sqlalchemy.dialects.mysql import ENUM, SMALLINT, VARCHAR
 from sqlmodel import Field, SQLModel
 
 _SEMESTER_ENUM = ["Fall", "Spring", "Summer"]
