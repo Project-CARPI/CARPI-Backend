@@ -1,9 +1,12 @@
 from contextlib import asynccontextmanager
+from threading import Event as ThreadEvent
 from typing import Annotated, AsyncGenerator, Generator
 
 from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlmodel import Session, SQLModel, create_engine
+
+from .routers.scraper import ScraperThread
 
 
 class _Settings(BaseSettings):
@@ -31,9 +34,14 @@ async def init_db_engine(app: FastAPI) -> AsyncGenerator[None, None]:
     )
     # Creates tables in database based on SQLModel table models
     SQLModel.metadata.create_all(_engine)
+    thread_event = ThreadEvent()
+    scraper_thread = ScraperThread(thread_event)
+    scraper_thread.start()
     yield
     # Disposes database connection pool on app shutdown
     _engine.dispose()
+    thread_event.set()
+    scraper_thread.join()
 
 
 def get_settings() -> _Settings:
