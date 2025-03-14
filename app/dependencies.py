@@ -41,7 +41,6 @@ async def lifespan_func(app: FastAPI) -> AsyncGenerator[None, None]:
     # Creates tables in database based on SQLModel table models
     SQLModel.metadata.create_all(_engine)
 
-    # Starts background task scheduler
     bg_scheduler = BackgroundScheduler()
     bg_scheduler.add_job(
         scrape_courses,
@@ -52,8 +51,8 @@ async def lifespan_func(app: FastAPI) -> AsyncGenerator[None, None]:
 
     yield
 
-    # Disposes database connection pool
     _engine.dispose()
+    bg_scheduler.shutdown()
 
 
 def get_settings() -> _Settings:
