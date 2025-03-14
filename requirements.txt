@@ -1,3 +1,6 @@
+# Run `pip install -r requirements.txt` to install required packages
+# Comment out uvloop if using a non-Unix system (e.g. Windows)
+
 aiohappyeyeballs==2.4.6
 aiohttp==3.11.12
 aiosignal==1.3.2
