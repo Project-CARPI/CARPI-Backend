@@ -1,5 +1,4 @@
 import os
-
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator, Generator
 
@@ -8,8 +7,6 @@ from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlmodel import Session, SQLModel, create_engine
-
-from app.routers.scraper import scrape_courses
 
 
 class _Settings(BaseSettings):
@@ -26,6 +23,7 @@ class _Settings(BaseSettings):
 
 _settings = _Settings()
 _engine = None
+background_scheduler = BackgroundScheduler()
 
 
 @asynccontextmanager
@@ -40,22 +38,16 @@ async def lifespan_func(app: FastAPI) -> AsyncGenerator[None, None]:
     )
     # Creates tables in database based on SQLModel table models
     SQLModel.metadata.create_all(_engine)
-
-    bg_scheduler = BackgroundScheduler()
-    bg_scheduler.add_job(
-        scrape_courses,
-        trigger=CronTrigger(day_of_week="mon", hour=4),
-        timezone="America/New_York",
-    )
-    bg_scheduler.start()
+    # Start background job scheduler
+    background_scheduler.start()
 
     yield
 
     _engine.dispose()
-    bg_scheduler.shutdown()
+    background_scheduler.shutdown()
 
 
-def get_settings() -> _Settings:
+def get_app_settings() -> _Settings:
     return _settings
 
 
