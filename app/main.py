@@ -11,10 +11,12 @@ from app import background_scheduler, lifespan_func
 from app.scrapers import sis_scraper
 
 
-def scan_and_include_routers(app: FastAPI, package: str) -> None:
-    package_module = importlib.import_module(package)
+def scan_and_include_routers(app: FastAPI) -> None:
+    app_package_name = __name__.split(".")[0]
+    package_module_name = f"{app_package_name}.routers"
+    package_module = importlib.import_module(package_module_name)
     for _, module_name, _ in pkgutil.iter_modules(package_module.__path__):
-        module = importlib.import_module(f"{package}.{module_name}")
+        module = importlib.import_module(f"{package_module_name}.{module_name}")
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
             if isinstance(attr, APIRouter):
@@ -36,6 +38,5 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
-_package_name = __name__.split(".")[0]
-scan_and_include_routers(app, f"{_package_name}.routers")
+scan_and_include_routers(app)
 init_background_scheduler(background_scheduler)
