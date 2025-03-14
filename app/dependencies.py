@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator, Generator
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlmodel import Session, SQLModel, create_engine
