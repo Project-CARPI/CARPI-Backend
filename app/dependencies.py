@@ -7,7 +7,7 @@ from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlmodel import Session, SQLModel, create_engine
 
-from .routers.scraper import scrape_courses
+from app.routers.scraper import scrape_courses
 
 
 class _Settings(BaseSettings):

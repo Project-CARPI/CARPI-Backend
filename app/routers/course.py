@@ -4,10 +4,10 @@ from fastapi import APIRouter
 from sqlmodel import and_, desc, distinct, func, or_, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
 
-from ..db_models.course import Course
-from ..db_models.course_attribute import Course_Attribute
-from ..db_models.course_seats import Course_Seats
-from ..dependencies import SessionDep
+from app import SessionDep
+from app.db_models.course import Course
+from app.db_models.course_attribute import Course_Attribute
+from app.db_models.course_seats import Course_Seats
 
 
 class CourseFilter(str, Enum):

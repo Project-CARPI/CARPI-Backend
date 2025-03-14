@@ -2,7 +2,7 @@ import asyncio
 
 from fastapi import APIRouter, Response
 
-from ..scrapers import sis_scraper
+from app.scrapers import sis_scraper
 
 _is_scraper_running = False
 
