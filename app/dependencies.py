@@ -1,3 +1,5 @@
+import os
+
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator, Generator
 
@@ -17,7 +19,9 @@ class _Settings(BaseSettings):
     db_username: str
     db_password: str
     db_schema: str
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(os.path.dirname(__file__), ".env")
+    )
 
 
 _settings = _Settings()
