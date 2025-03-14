@@ -1,6 +1,6 @@
 import asyncio
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 
 from ..scrapers import sis_scraper
 
@@ -18,3 +18,9 @@ def scrape_courses():
     asyncio.run(sis_scraper.main())
     _is_scraper_running = False
     return True
+
+
+@router.post("/start")
+def start_scraper():
+    if not scrape_courses():
+        return Response(status_code=409, content="Scraper already running")

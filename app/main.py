@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .dependencies import lifespan_func
-from .routers import course
+from .routers import course, scraper
 
 app = FastAPI(root_path="/api/v1", lifespan=lifespan_func)
 app.add_middleware(
@@ -12,3 +12,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(course.router)
+app.include_router(scraper.router)
