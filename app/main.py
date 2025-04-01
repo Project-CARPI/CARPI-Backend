@@ -1,17 +1,14 @@
-import asyncio
 import importlib
 import pkgutil
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_app_settings
 from app.database import dispose_db_engine, init_db_engine
-from app.scrapers import sis_scraper
 
 BACKGROUND_SCHEDULER = BackgroundScheduler()
 
@@ -53,11 +50,7 @@ def init_background_scheduler(bg_scheduler: BackgroundScheduler) -> None:
     """
     Initializes the background task scheduler with tasks.
     """
-    bg_scheduler.add_job(
-        lambda: asyncio.run(sis_scraper.main()),
-        trigger=CronTrigger(day_of_week="mon", hour=4),
-        timezone="America/New_York",
-    )
+    pass
 
 
 app = FastAPI(root_path="/api/v1", lifespan=lifespan_func)
