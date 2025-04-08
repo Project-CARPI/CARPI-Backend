@@ -10,6 +10,7 @@ _engine: Engine = None
 
 
 def init_db_engine(settings: CARPIFastAPISettings) -> None:
+    global _engine
     _engine = create_engine(
         url=f"{settings.db_dialect}+{settings.db_api}"
         + f"://{settings.db_username}:{settings.db_password}"
