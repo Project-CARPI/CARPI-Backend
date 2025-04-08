@@ -1,7 +1,7 @@
 from enum import Enum
 
 from fastapi import APIRouter
-from sqlmodel import select
+from sqlmodel import and_, desc, distinct, func, or_, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
 
 from app.database import SessionDep
