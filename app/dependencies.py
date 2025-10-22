@@ -4,6 +4,7 @@ from typing import Annotated, AsyncGenerator, Generator
 
 from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import Engine
 from sqlmodel import Session, SQLModel, create_engine
 
 
@@ -20,7 +21,7 @@ class _Settings(BaseSettings):
 
 
 _settings = _Settings()
-_engine = None
+_engine: Engine | None = None
 
 
 @asynccontextmanager
