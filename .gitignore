@@ -180,4 +180,3 @@ cython_debug/
 .DS_Store
 
 # Project Specific
-scraper_data/
