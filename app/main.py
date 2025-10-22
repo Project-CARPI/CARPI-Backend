@@ -15,7 +15,11 @@ def scan_and_include_routers(app: FastAPI) -> None:
         module = importlib.import_module(f"{package_module_name}.{module_name}")
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if isinstance(attr, APIRouter) and getattr(attr, "__module__", None) == module.__name__:
+            if (
+                isinstance(attr, APIRouter)
+                and getattr(attr, "__module__", None) == module.__name__
+            ):
+
                 app.include_router(attr)
 
 
