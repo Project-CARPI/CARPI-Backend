@@ -2,6 +2,7 @@ from enum import Enum
 
 from fastapi import APIRouter
 from sqlmodel import and_, desc, distinct, func, or_, select
+from sqlmodel import and_, desc, distinct, func, or_, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
 
 from app import SessionDep
@@ -141,8 +142,9 @@ def search_course(
     dept_filters = deptFilters.split(",") if deptFilters else None
     attr_filters = attrFilters.split(",") if attrFilters else None
     sem_filters = semFilters.split(",") if semFilters else None
-    if not (searchPrompt or dept_filters or attr_filters or sem_filters):
-        return []
+    if not (dept_filters or attr_filters or sem_filters):
+        if not searchPrompt or len(searchPrompt) < 3:
+            return []
     regex_code = ".*"
     regex_full = ".*"
     regex_start = ".*"
@@ -161,7 +163,7 @@ def search_course(
     if sem_filters and len(sem_filters) > 0:
         sem_filters.sort()
         sem_filter_regex = ".*".join(sem_filters)
-    if searchPrompt and len(searchPrompt) > 0:
+    if searchPrompt and len(searchPrompt) > 2:
         reg_start_or_space = "(^|.* )"
         # Full code match
         regex_code = f"^{searchPrompt}$"
