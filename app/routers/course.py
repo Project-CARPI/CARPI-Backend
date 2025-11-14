@@ -1,17 +1,15 @@
 from enum import Enum
 
 from fastapi import APIRouter
-from sqlmodel import and_, desc, distinct, func, or_, select
-from sqlmodel.sql.expression import Select, SelectOfScalar
+from sqlalchemy import and_, desc, distinct, func, or_, select
+from sqlalchemy.sql import Select
 
 from app import SessionDep
-from app.db_models.course import Course
-from app.db_models.course_attribute import Course_Attribute
-from app.db_models.course_seats import Course_Seats
+from carpi_data_model.models import Course, Course_Attribute, Course_Offering
 
 
 class CourseFilter(str, Enum):
-    departments = "departments"
+    subjects = "subjects"
     attributes = "attributes"
     semesters = "semesters"
 
@@ -29,21 +27,25 @@ def search_course_query(
     dept_filter_regex: str,
     attr_filter_regex: str,
     sem_filter_regex: str,
-) -> Select | SelectOfScalar:
+) -> Select:
     return (
         select(
-            Course.dept,
+            Course.subj_code,
             Course.code_num,
             Course.title,
             Course.desc_text,
             Course.credit_min,
             Course.credit_max,
             func.group_concat(
-                distinct(func.concat(Course_Seats.semester, " ", Course_Seats.sem_year))
+                distinct(
+                    func.concat(Course_Offering.semester, " ", Course_Offering.sem_year)
+                )
             ).label("sem_list"),
-            func.group_concat(distinct(Course_Attribute.attr)).label("attr_list"),
+            func.group_concat(distinct(Course_Attribute.attr_code)).label("attr_list"),
             func.regexp_like(
-                func.concat(Course.dept, " ", Course.code_num), search_code_regex, "i"
+                func.concat(Course.subj_code, " ", Course.code_num),
+                search_code_regex,
+                "i",
             ).label("code_match"),
             func.regexp_like(Course.title, search_full_regex, "i").label(
                 "title_exact_match"
@@ -60,22 +62,22 @@ def search_course_query(
             ),
         )
         .join(
-            Course_Seats,
+            Course_Offering,
             and_(
-                Course.dept == Course_Seats.dept,
-                Course.code_num == Course_Seats.code_num,
+                Course.subj_code == Course_Offering.subj_code,
+                Course.code_num == Course_Offering.code_num,
             ),
         )
         .outerjoin(
             Course_Attribute,
             and_(
-                Course.dept == Course_Attribute.dept,
+                Course.subj_code == Course_Attribute.subj_code,
                 Course.code_num == Course_Attribute.code_num,
             ),
         )
-        .where(func.regexp_like(Course.dept, dept_filter_regex, "i"))
+        .where(func.regexp_like(Course.subj_code, dept_filter_regex, "i"))
         .group_by(
-            Course.dept,
+            Course.subj_code,
             Course.code_num,
             Course.title,
             Course.desc_text,
@@ -85,7 +87,7 @@ def search_course_query(
         .having(
             or_(
                 func.regexp_like(
-                    func.concat(Course.dept, " ", Course.code_num),
+                    func.concat(Course.subj_code, " ", Course.code_num),
                     search_code_regex,
                     "i",
                 ),
@@ -96,14 +98,18 @@ def search_course_query(
                 func.regexp_like(Course.title, search_abbrev_regex, "i"),
             ),
             func.regexp_like(
-                func.ifnull(func.group_concat(distinct(Course_Attribute.attr)), ""),
+                func.ifnull(
+                    func.group_concat(distinct(Course_Attribute.attr_code)), ""
+                ),
                 attr_filter_regex,
                 "i",
             ),
             func.regexp_like(
                 func.group_concat(
                     distinct(
-                        func.concat(Course_Seats.semester, " ", Course_Seats.sem_year)
+                        func.concat(
+                            Course_Offering.semester, " ", Course_Offering.sem_year
+                        )
                     )
                 ),
                 sem_filter_regex,
@@ -113,7 +119,7 @@ def search_course_query(
         .order_by(
             desc(
                 func.regexp_like(
-                    func.concat(Course.dept, " ", Course.code_num),
+                    func.concat(Course.subj_code, " ", Course.code_num),
                     search_code_regex,
                     "i",
                 )
@@ -124,7 +130,7 @@ def search_course_query(
             desc(func.regexp_like(Course.title, search_acronym_regex, "i")),
             desc(func.regexp_like(Course.title, search_abbrev_regex, "i")),
             Course.code_num,
-            Course.dept,
+            Course.subj_code,
         )
     )
 
@@ -189,7 +195,7 @@ def search_course(
             regex_abbrev = regex_abbrev[:-3]
         else:
             regex_abbrev = "a^"
-    results = session.exec(
+    results = session.execute(
         search_course_query(
             regex_code,
             regex_full,
@@ -208,12 +214,12 @@ def search_course(
 @router.get("/filter/values/{filter}")
 def get_filter_values(session: SessionDep, filter: CourseFilter) -> list[str]:
     column = None
-    if filter is CourseFilter.departments:
-        column = Course.dept
+    if filter is CourseFilter.subjects:
+        column = Course.subj_code
     elif filter is CourseFilter.attributes:
-        column = Course_Attribute.attr
+        column = Course_Attribute.attr_code
     elif filter is CourseFilter.semesters:
-        column = Course_Seats.semester
+        column = Course_Offering.semester
     else:
         return None
-    return session.exec(select(column).distinct()).all()
+    return session.execute(select(column).distinct()).all()
