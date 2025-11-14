@@ -1,11 +1,17 @@
 from enum import Enum
 
+from carpi_data_model.models import (
+    Attribute,
+    Course,
+    Course_Attribute,
+    Course_Offering,
+    Subject,
+)
 from fastapi import APIRouter
 from sqlalchemy import and_, desc, distinct, func, or_, select
 from sqlalchemy.sql import Select
 
 from app import SessionDep
-from carpi_data_model.models import Course, Course_Attribute, Course_Offering
 
 
 class CourseFilter(str, Enum):
@@ -215,11 +221,11 @@ def search_course(
 def get_filter_values(session: SessionDep, filter: CourseFilter) -> list[str]:
     column = None
     if filter is CourseFilter.subjects:
-        column = Course.subj_code
+        column = Subject.subj_code
     elif filter is CourseFilter.attributes:
-        column = Course_Attribute.attr_code
+        column = Attribute.attr_code
     elif filter is CourseFilter.semesters:
         column = Course_Offering.semester
     else:
         return None
-    return session.execute(select(column).distinct()).all()
+    return session.execute(select(column).distinct()).scalars().all()
