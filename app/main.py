@@ -4,7 +4,7 @@ import pkgutil
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import lifespan_func
+from app import lifespan_func, logger
 
 
 def scan_and_include_routers(app: FastAPI) -> None:
@@ -15,11 +15,8 @@ def scan_and_include_routers(app: FastAPI) -> None:
         module = importlib.import_module(f"{package_module_name}.{module_name}")
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if (
-                isinstance(attr, APIRouter)
-                and getattr(attr, "__module__", None) == module.__name__
-            ):
-
+            if isinstance(attr, APIRouter):
+                logger.info(f"Including router from {module.__name__}")
                 app.include_router(attr)
 
 
