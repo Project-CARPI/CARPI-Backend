@@ -5,7 +5,7 @@
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.11.0
-carpi-data-model @ git+https://github.com/Project-CARPI/database-schema.git@e188119f2d1d4f03b97c8a2457806c5b0a7f4749
+carpi-data-model @ git+https://github.com/Project-CARPI/database-schema.git
 certifi==2025.11.12
 click==8.3.0
 colorama==0.4.6
