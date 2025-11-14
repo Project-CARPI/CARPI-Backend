@@ -42,11 +42,7 @@ def search_course_query(
             Course.desc_text,
             Course.credit_min,
             Course.credit_max,
-            func.group_concat(
-                distinct(
-                    func.concat(Course_Offering.semester, " ", Course_Offering.sem_year)
-                )
-            ).label("sem_list"),
+            func.group_concat(distinct(Course_Offering.semester)).label("sem_list"),
             func.group_concat(distinct(Course_Attribute.attr_code)).label("attr_list"),
             func.regexp_like(
                 func.concat(Course.subj_code, " ", Course.code_num),
@@ -148,7 +144,7 @@ def search_course(
     deptFilters: str | None = None,
     attrFilters: str | None = None,
     semFilters: str | None = None,
-) -> list[dict[str, str | int | None]]:
+) -> list[dict[str, str | int | list[str]]]:
     # FastAPI does not support list query parameters
     dept_filters = deptFilters.split(",") if deptFilters else None
     attr_filters = attrFilters.split(",") if attrFilters else None
@@ -214,7 +210,13 @@ def search_course(
             sem_filter_regex,
         )
     ).all()
-    return [dict(row._mapping) for row in results]
+    results_dict = [dict(row._mapping) for row in results]
+    for course in results_dict:
+        course["sem_list"] = course["sem_list"].split(",") if course["sem_list"] else []
+        course["attr_list"] = (
+            course["attr_list"].split(",") if course["attr_list"] else []
+        )
+    return results_dict
 
 
 @router.get("/filter/values/{filter}")
