@@ -144,7 +144,7 @@ def search_course(
     deptFilters: str | None = None,
     attrFilters: str | None = None,
     semFilters: str | None = None,
-) -> list[dict[str, str | int | None]]:
+) -> list[dict[str, str | int | list[str]]]:
     # FastAPI does not support list query parameters
     dept_filters = deptFilters.split(",") if deptFilters else None
     attr_filters = attrFilters.split(",") if attrFilters else None
@@ -210,7 +210,13 @@ def search_course(
             sem_filter_regex,
         )
     ).all()
-    return [dict(row._mapping) for row in results]
+    results_dict = [dict(row._mapping) for row in results]
+    for course in results_dict:
+        course["sem_list"] = course["sem_list"].split(",") if course["sem_list"] else []
+        course["attr_list"] = (
+            course["attr_list"].split(",") if course["attr_list"] else []
+        )
+    return results_dict
 
 
 @router.get("/filter/values/{filter}")
