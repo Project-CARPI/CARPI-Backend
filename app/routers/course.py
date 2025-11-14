@@ -42,11 +42,7 @@ def search_course_query(
             Course.desc_text,
             Course.credit_min,
             Course.credit_max,
-            func.group_concat(
-                distinct(
-                    func.concat(Course_Offering.semester, " ", Course_Offering.sem_year)
-                )
-            ).label("sem_list"),
+            func.group_concat(distinct(Course_Offering.semester)).label("sem_list"),
             func.group_concat(distinct(Course_Attribute.attr_code)).label("attr_list"),
             func.regexp_like(
                 func.concat(Course.subj_code, " ", Course.code_num),
