@@ -234,6 +234,6 @@ def get_filter_values(session: SessionDep, filter: CourseFilter) -> dict[str, st
         )
         return {sem: sem.capitalize() for sem in result_scalars}
     else:
-        return None
+        return {}
     result_mappings = session.execute(select(code_col, title_col)).mappings().all()
     return {row[code_col]: row[title_col] for row in result_mappings}
