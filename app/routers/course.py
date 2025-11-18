@@ -141,12 +141,12 @@ def search_course_query(
 def search_course(
     session: SessionDep,
     searchPrompt: str | None = None,
-    deptFilters: str | None = None,
+    subjFilters: str | None = None,
     attrFilters: str | None = None,
     semFilters: str | None = None,
 ) -> list[dict[str, str | int | list[str]]]:
     # FastAPI does not support list query parameters
-    dept_filters = deptFilters.split(",") if deptFilters else None
+    dept_filters = subjFilters.split(",") if subjFilters else None
     attr_filters = attrFilters.split(",") if attrFilters else None
     sem_filters = semFilters.split(",") if semFilters else None
     if not (dept_filters or attr_filters or sem_filters):
