@@ -220,14 +220,20 @@ def search_course(
 
 
 @router.get("/filter/values/{filter}")
-def get_filter_values(session: SessionDep, filter: CourseFilter) -> list[str]:
-    column = None
+def get_filter_values(session: SessionDep, filter: CourseFilter) -> dict[str, str]:
+    code_col, title_col = None, None
     if filter is CourseFilter.subjects:
-        column = Subject.subj_code
+        code_col = Subject.subj_code
+        title_col = Subject.title
     elif filter is CourseFilter.attributes:
-        column = Attribute.attr_code
+        code_col = Attribute.attr_code
+        title_col = Attribute.title
     elif filter is CourseFilter.semesters:
-        column = Course_Offering.semester
+        result_scalars = (
+            session.execute(select(Course_Offering.semester).distinct()).scalars().all()
+        )
+        return {sem: sem.capitalize() for sem in result_scalars}
     else:
-        return None
-    return session.execute(select(column).distinct()).scalars().all()
+        return {}
+    result_mappings = session.execute(select(code_col, title_col)).mappings().all()
+    return {row[code_col]: row[title_col] for row in result_mappings}
