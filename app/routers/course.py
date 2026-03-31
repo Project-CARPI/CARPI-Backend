@@ -5,6 +5,7 @@ from carpi_data_model.models import (
     Course,
     Course_Attribute,
     Course_Offering,
+    Course_Relationship,
     Subject,
 )
 from fastapi import APIRouter
@@ -237,3 +238,23 @@ def get_filter_values(session: SessionDep, filter: CourseFilter) -> dict[str, st
         return {}
     result_mappings = session.execute(select(code_col, title_col)).mappings().all()
     return {row[code_col]: row[title_col] for row in result_mappings}
+
+
+@router.get("/corequisites")
+def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list[str]:
+    statement = select(Course_Relationship).where(
+        Course_Relationship.relationship == "COREQUISITE",
+        Course_Relationship.subj_code == subj_code,
+        Course_Relationship.code_num == code_num,
+    )
+
+    result_proxy = session.execute(statement)
+
+    res = []
+    for row in result_proxy.mappings():
+        res.append(
+            f'{row["Course_Relationship"].rel_subj} {row["Course_Relationship"].rel_code_num}'
+        )
+
+    # This will return the list so you can see it in your browser/Postman
+    return res
