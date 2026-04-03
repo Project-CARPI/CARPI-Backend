@@ -258,3 +258,23 @@ def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list
 
     # This will return the list so you can see it in your browser/Postman
     return res
+
+
+@router.get("/crosslisted_courses")
+def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list[str]:
+    statement = select(Course_Relationship).where(
+        Course_Relationship.relationship == "CROSSLIST",
+        Course_Relationship.subj_code == subj_code,
+        Course_Relationship.code_num == code_num,
+    )
+
+    result_proxy = session.execute(statement)
+
+    res = []
+    for row in result_proxy.mappings():
+        res.append(
+            f'{row["Course_Relationship"].rel_subj} {row["Course_Relationship"].rel_code_num}'
+        )
+
+    # This will return the list so you can see it in your browser/Postman
+    return res
