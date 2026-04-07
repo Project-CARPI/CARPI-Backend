@@ -240,8 +240,15 @@ def get_filter_values(session: SessionDep, filter: CourseFilter) -> dict[str, st
     return {row[code_col]: row[title_col] for row in result_mappings}
 
 
+# return json list with subj_code and code_num
+# [
+#   { "subj_code": XXXX, "code_num": XXXX},
+#   { "subj_code": YYYY, "code_num": YYYY},
+# ]
+
+
 @router.get("/corequisites")
-def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list[str]:
+def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list[dict]:
     statement = select(Course_Relationship).where(
         Course_Relationship.relationship == "COREQUISITE",
         Course_Relationship.subj_code == subj_code,
@@ -253,14 +260,17 @@ def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list
     res = []
     for row in result_proxy.mappings():
         res.append(
-            f'{row["Course_Relationship"].rel_subj} {row["Course_Relationship"].rel_code_num}'
+            {
+                "subj_code": row["Course_Relationship"].rel_subj,
+                "code_num": row["Course_Relationship"].rel_code_num,
+            }
         )
 
     # This will return the list so you can see it in your browser/Postman
     return res
 
 
-@router.get("/crosslisted_courses")
+@router.get("/crosslists")
 def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list[str]:
     statement = select(Course_Relationship).where(
         Course_Relationship.relationship == "CROSSLIST",
@@ -273,7 +283,10 @@ def get_corequisites(session: SessionDep, subj_code: str, code_num: str) -> list
     res = []
     for row in result_proxy.mappings():
         res.append(
-            f'{row["Course_Relationship"].rel_subj} {row["Course_Relationship"].rel_code_num}'
+            {
+                "subj_code": row["Course_Relationship"].rel_subj,
+                "code_num": row["Course_Relationship"].rel_code_num,
+            }
         )
 
     # This will return the list so you can see it in your browser/Postman
