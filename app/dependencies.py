@@ -2,12 +2,12 @@ import os
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator, Generator
 
+import carpi_data_model.models as models
 from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
-import carpi_data_model.models as models
 
 
 class _Settings(BaseSettings):
@@ -18,7 +18,8 @@ class _Settings(BaseSettings):
     db_password: str
     db_schema: str
     model_config = SettingsConfigDict(
-        env_file=os.path.join(os.path.dirname(__file__), ".env")
+        env_file=os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"),
+        extra="ignore",
     )
 
 
