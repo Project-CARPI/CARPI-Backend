@@ -7,6 +7,8 @@ from carpi_data_model.models import (
     Course_Offering,
     Course_Relationship,
     Subject,
+    Prerequisite_Nesting,
+    Prerequisite_Course,
 )
 from fastapi import APIRouter
 from sqlalchemy import and_, desc, distinct, func, or_, select
@@ -245,6 +247,91 @@ def get_filter_values(session: SessionDep, filter: CourseFilter) -> dict[str, st
 #   { "subj_code": XXXX, "code_num": XXXX},
 #   { "subj_code": YYYY, "code_num": YYYY},
 # ]
+
+"""
+{
+  "type": "or",
+  "values": [
+    {
+      "type": "course",
+      "subj_code": "CSCI",
+      "code_num": "1100"
+    },
+    {
+      "type": "course",
+      "subj_code": "CSCI",
+      "code_num": "1200"
+    },
+    {
+      "type": "and",
+      "values": [
+        {
+          "type": "course",
+          "subj_code": "CSCI",
+          "code_num": "1300"
+        },
+        {
+          "type": "course",
+          "subj_code": "CSCI",
+          "code_num": "1400"
+        }
+      ]
+    }
+  ]
+}
+"""
+
+
+@router.get("/prerequisites")
+def get_prerequisites(session: SessionDep, subj_code: str, code_num: str) -> dict:
+    statement_nesting = select(Prerequisite_Nesting).where(
+        Prerequisite_Nesting.og_subj_code == subj_code,
+        Prerequisite_Nesting.og_code_num == code_num,
+    )
+    statement_courses = select(Prerequisite_Course).where(
+        Prerequisite_Course.og_subj_code == subj_code,
+        Prerequisite_Course.og_code_num == code_num,
+    )
+
+    nestings = session.execute(statement_nesting)
+    courses = session.execute(statement_courses).scalars().all()
+
+    id_mappings = {}
+    for row in nestings.mappings():
+        id_mappings[row["Prerequisite_Nesting"].id] = (
+            row["Prerequisite_Nesting"].relationship
+        ).value.lower()
+
+    two_d_array = [[] for _ in range(len(id_mappings) + 1)]
+    for row in courses:
+        two_d_array[int(row.parent_id)].append(
+            {
+                "type": "course",
+                "subj_code": row.new_subj_code,
+                "code_num": row.new_code_num,
+            }
+        )
+
+    test = []
+
+    for key in id_mappings:
+        new_d = {"values": []}
+        new_d["type"] = id_mappings[key]
+        for item in two_d_array[key]:
+            new_d["values"].append(item)
+        test.append(new_d)
+
+    # Start from the bottom of the tree and move up
+    for i in range(len(test) - 1, 0, -1):
+        # Append the entire child dictionary as a single item in the parent's values
+        test[i - 1]["values"].append(test[i])
+
+    # print(json.dumps(test, indent=2))
+    # print(id_mappings)
+    # print(two_d_array)
+
+    # Return the top-level object (usually the first one created)
+    return test[0] if test else {}
 
 
 @router.get("/corequisites")
