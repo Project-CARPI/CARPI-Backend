@@ -1,9 +1,9 @@
 FROM python:3.12-slim
 
 # Git is needed to install the git-based dependency in requirements.txt
-RUN apt-get update
-    && apt-get install -y git
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /api
 
 COPY requirements.txt .
 
