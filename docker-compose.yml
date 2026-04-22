@@ -33,9 +33,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_DIALECT: mysql
+      DB_DIALECT: ${DB_DIALECT}
       DB_API: ${DB_API}
-      DB_HOSTNAME: db:3306
+      DB_HOSTNAME: ${DB_HOSTNAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_SCHEMA: ${DB_SCHEMA}
