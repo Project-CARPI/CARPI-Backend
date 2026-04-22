@@ -22,13 +22,8 @@ services:
     restart: always
     ports:
       - "8000:8000"
-    environment:
-      DB_DIALECT: ${DB_DIALECT}
-      DB_API: ${DB_API}
-      DB_HOSTNAME: ${DB_HOSTNAME}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_SCHEMA: ${DB_SCHEMA}
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
