@@ -22,8 +22,13 @@ services:
     restart: always
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    environment:
+      DB_DIALECT: mysql
+      DB_API: ${DB_API}
+      DB_HOSTNAME: db:3306
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
     depends_on:
       db:
         condition: service_healthy
