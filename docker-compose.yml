@@ -1,47 +1,49 @@
-services:
-  db:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_SCHEMA}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "127.0.0.1",
-          "-u",
-          "${DB_USERNAME}",
-          "--password=${DB_PASSWORD}",
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+# Docker Compose configuration for the CARPI API environment.
+#
+# This Compose file includes a shared development environment configuration
+# from the Project-CARPI/.github repository, which contains a database service
+# and a shared Docker network for testing.
+#
+# To start the development environment, run:
+# docker compose run --rm api && docker compose down
+#
+# This will start both the shared development environment and the carpi-api
+# container. After the API container is stopped, the "docker compose down" will
+# stop the shared development environment.
+#
+# The test database volume persists between Docker start and stop cycles so
+# that test data remains available across both development sessions and other
+# services that depend on the database. The volume must be manually removed in
+# order to build the database from scratch.
 
+name: carpi-api-dev-environment
+
+include:
+  - https://github.com/Project-CARPI/.github.git#main:shared-dev-env/docker-compose.yml
+
+services:
   api:
     build: .
-    restart: always
+    image: carpi-api:latest
+    container_name: carpi-api
+    # Ensure image is built locally and is not pulled from a registry
+    pull_policy: build
+    restart: on-failure
     ports:
       - "8000:8000"
+    env_file:
+      - .env
+    # Override the DB_HOSTNAME environment variable
     environment:
-      DB_DIALECT: ${DB_DIALECT}
-      DB_API: ${DB_API}
-      DB_HOSTNAME: ${DB_HOSTNAME}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_SCHEMA: ${DB_SCHEMA}
+      DB_HOSTNAME: db:3306
+    # Mount local code over the code built into the container for automatic
+    # reloading during development.
+    volumes:
+      - .:/api
     depends_on:
       db:
         condition: service_healthy
-
-volumes:
-  mysql_data:
+    develop:
+      watch:
+        - action: rebuild
+          path: requirements.txt
