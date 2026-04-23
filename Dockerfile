@@ -1,15 +1,19 @@
 FROM python:3.12-slim
 
 # Git is needed to install the git-based dependency in requirements.txt
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git
 
+# Clean up apt cache to reduce image size
+RUN rm -rf /var/lib/apt/lists/*
+
+# Store all application files in /api
 WORKDIR /api
 
+# Copy the requirements file and install dependencies
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/ ./app/
+COPY . .
 
 EXPOSE 8000
 
