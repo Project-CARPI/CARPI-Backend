@@ -11,6 +11,9 @@
 # container. After the API container is stopped, the "docker compose down" will
 # stop the shared development environment.
 #
+# A warning may appear about the test database volume already existing. This is
+# expected and can be safely ignored.
+#
 # The test database volume persists between Docker start and stop cycles so
 # that test data remains available across both development sessions and other
 # services that depend on the database. The volume must be manually removed in
