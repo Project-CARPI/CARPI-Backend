@@ -22,7 +22,7 @@ The default values provided in the example file will work out of the box, but th
 With Docker Engine running, execute the following command in your terminal:
 
 ```bash
-docker compose run --rm api && docker compose down
+docker compose run --rm --service-ports api && docker compose down
 ```
 
 ### About the Database Environment
