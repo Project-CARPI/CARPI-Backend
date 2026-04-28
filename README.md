@@ -25,6 +25,11 @@ With Docker Engine running, execute the following command in your terminal:
 docker compose run --rm --service-ports api && docker compose down
 ```
 
+While the container is running:
+
+- **Live Reloading:** Local files are mounted to the running container, so the API service will automatically respond to live changes in your source code.
+- **API Documentation:** A list of endpoint definitions and interactive Swagger documentation can be found at http://localhost:8000/docs.
+
 ### About the Database Environment
 
 - **Shared Database:** The development environment pulls a shared MySQL database service definition from an external repository, creating a local database volume.
