@@ -1,8 +1,7 @@
 # Docker Compose configuration for the CARPI API environment.
 #
 # This Compose file includes a shared development environment configuration
-# from the Project-CARPI/.github repository, which contains a database service
-# and a shared Docker network for testing.
+# from the Project-CARPI/.github repository, which contains a database service.
 #
 # To start the development environment, run:
 # docker compose run --rm api && docker compose down
