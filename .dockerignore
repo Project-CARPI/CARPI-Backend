@@ -1,0 +1,15 @@
+# Ignore all files
+
+*
+
+# Whitelist necessary build files
+!requirements.txt
+
+# Allow Docker to read app directory
+!app/
+
+# Ignore everything inside app
+app/*
+
+# Only allow .py files within app and its subdirectories
+!app/**/*.py

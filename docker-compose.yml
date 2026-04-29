@@ -1,0 +1,52 @@
+# Docker Compose configuration for the CARPI API environment.
+#
+# This Compose file includes a shared development environment configuration
+# from the Project-CARPI/.github repository, which contains a database service.
+#
+# To start the development environment, run:
+# docker compose run --rm --service-ports api && docker compose down
+#
+# This will start both the shared development environment and the carpi-api
+# container. After the API container is stopped, the "docker compose down" will
+# stop the shared development environment.
+#
+# A warning may appear about the test database volume already existing. This is
+# expected and can be safely ignored.
+#
+# The test database volume persists between Docker start and stop cycles so
+# that test data remains available across both development sessions and other
+# services that depend on the database. The volume must be manually removed in
+# order to build the database from scratch.
+
+name: carpi-api-dev-environment
+
+include:
+  - https://github.com/Project-CARPI/.github.git#main:shared-dev-env/docker-compose.yml
+
+services:
+  api:
+    build:
+      context: .
+      target: dev
+    image: carpi-api:latest
+    container_name: carpi-api
+    # Ensure image is built locally and is not pulled from a registry
+    pull_policy: build
+    restart: on-failure
+    ports:
+      - "8000:8000"
+    environment:
+      DB_DIALECT: ${DB_DIALECT}
+      DB_API: ${DB_API}
+      # Hardcode the DB_HOSTNAME environment variable
+      DB_HOSTNAME: db:3306
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
+    # Mount local code over the code built into the container for automatic
+    # reloading during development.
+    volumes:
+      - .:/api
+    depends_on:
+      db:
+        condition: service_healthy
