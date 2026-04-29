@@ -34,7 +34,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       DB_DIALECT: ${DB_DIALECT}
       DB_API: ${DB_API}
       # Hardcode the DB_HOSTNAME environment variable
