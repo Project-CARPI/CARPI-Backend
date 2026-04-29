@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS base
 
 # Git is needed to install the git-based dependency in requirements.txt
 RUN apt-get update && \
@@ -18,5 +18,14 @@ COPY . .
 # Indicate that the container should listen on port 8000
 EXPOSE 8000
 
-# Run FastAPI via Uvicorn
+# --- DEVELOPMENT STAGE ---
+FROM base as dev
+
+# Run Uvicorn with reload enabled for development
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+### --- PRODUCTION STAGE ---
+FROM base as prod
+
+# Run Uvicorn for production
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -25,7 +25,9 @@ include:
 
 services:
   api:
-    build: .
+    build:
+      context: .
+      target: dev
     image: carpi-api:latest
     container_name: carpi-api
     # Ensure image is built locally and is not pulled from a registry
